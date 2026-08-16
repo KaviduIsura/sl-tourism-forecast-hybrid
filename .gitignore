@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.env
+models/*.keras 
+node_modules/
+.ipynb_checkpoints/
