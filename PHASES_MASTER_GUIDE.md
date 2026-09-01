@@ -8,8 +8,8 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 
 ## Phase Overview & Checklist
 
-- [ ] **[Phase 0: Environment & Project Setup](#phase-0---environment--project-setup)**
-- [ ] **[Phase 1: Data Preparation](#phase-1---data-preparation-notebooks01_data_prepipynb)**
+- [x] **[Phase 0: Environment & Project Setup](#phase-0---environment--project-setup)**
+- [x] **[Phase 1: Data Preparation](#phase-1---data-preparation-notebooks01_data_prepipynb)**
 - [ ] **[Phase 2: Exploratory Data Analysis (EDA)](#phase-2---exploratory-data-analysis-eda-notebooks02_edaipynb)**
 - [ ] **[Phase 3: SARIMA Baseline Model](#phase-3---sarima-baseline-model-notebooks03_sarimaipynb)**
 - [ ] **[Phase 4: LSTM Deep Learning Model](#phase-4---lstm-model-notebooks04_lstmipynb)**
@@ -45,14 +45,14 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 ---
 
 ### Phase 1 - Data Preparation [`notebooks/01_data_prep.ipynb`]
-- [ ] **Step 1.1 - Load Master Dataset**: Read `data/raw/Dataset.xlsx` (`sheet_name='Dataset'`). Confirm 17 columns: `date`, `year`, `month`, `tourist_arrivals`, `usd_lkr_rate_monthly`, `gtrends_flights`, `gtrends_hotels`, `gtrends_visa`, `shock_flag`, `shock_type`, `month_sin`, `month_cos`, `arrivals_lag_1`, `arrivals_lag_3`, `arrivals_lag_12`, `arrivals_rolling_mean_3`, `dataset_split`.
-- [ ] **Step 1.2 - Fix Date Column**: Convert Excel serial integers (base `1899-12-30`) to `datetime`, normalized to the 1st of each month (`2015-01-01` to `2025-12-01`).
-- [ ] **Step 1.3 - Fix Data Types**: Replace `'None'` in `shock_type` with `np.nan`. Ensure all numeric features are `float`.
-- [ ] **Step 1.4 - Verify Feature Engineering**: Check `arrivals_lag_1`, cyclical `month_sin`, `arrivals_rolling_mean_3`.
-- [ ] **Step 1.5 - Validate Shock Flags**: Audit counts for Easter Attacks, COVID-19, and Economic Crisis.
-- [ ] **Step 1.6 - Mark ML-Ready Rows**: Create `ml_ready` column (1 where all 12 lag/rolling features are non-null, else 0).
-- [ ] **Step 1.7 - Save Processed Dataset**: Export to `data/processed/tourism_dataset_final.csv` and `backend/data/historical.csv`.
-- **Git Commit**: `git commit -m "Phase 1: Data preparation complete"`
+- [x] **Step 1.1 - Load Master Dataset**: Read `data/raw/Dataset.xlsx` (`sheet_name='Dataset'`). Confirm 17 columns: `date`, `year`, `month`, `tourist_arrivals`, `usd_lkr_rate_monthly`, `gtrends_flights`, `gtrends_hotels`, `gtrends_visa`, `shock_flag`, `shock_type`, `month_sin`, `month_cos`, `arrivals_lag_1`, `arrivals_lag_3`, `arrivals_lag_12`, `arrivals_rolling_mean_3`, `dataset_split`.
+- [x] **Step 1.2 - Fix Date Column**: Convert Excel serial integers (base `1899-12-30`) to `datetime`, normalized to the 1st of each month (`2015-01-01` to `2025-12-01`).
+- [x] **Step 1.3 - Fix Data Types**: Replace `'None'` in `shock_type` with `np.nan`. Ensure all numeric features are `float`.
+- [x] **Step 1.4 - Verify Feature Engineering**: Check `arrivals_lag_1`, cyclical `month_sin`, `arrivals_rolling_mean_3`.
+- [x] **Step 1.5 - Validate Shock Flags**: Audit counts for Easter Attacks, COVID-19, and Economic Crisis.
+- [x] **Step 1.6 - Mark ML-Ready Rows**: Create `ml_ready` column (1 where all 12 lag/rolling features are non-null, else 0).
+- [x] **Step 1.7 - Save Processed Dataset**: Export to `data/processed/tourism_dataset_final.csv` and `backend/data/historical.csv`.
+- **Git Commit**: `git commit -m "Phase 1: Data preparation complete"` ✅ Done
 
 ---
 
