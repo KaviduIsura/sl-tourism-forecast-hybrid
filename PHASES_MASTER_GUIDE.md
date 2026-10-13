@@ -11,7 +11,7 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 - [x] **[Phase 0: Environment & Project Setup](#phase-0---environment--project-setup)**
 - [x] **[Phase 1: Data Preparation](#phase-1---data-preparation-notebooks01_data_prepipynb)**
 - [x] **[Phase 2: Exploratory Data Analysis (EDA)](#phase-2---exploratory-data-analysis-eda-notebooks02_edaipynb)**
-- [ ] **[Phase 3: SARIMA Baseline Model](#phase-3---sarima-baseline-model-notebooks03_sarimaipynb)**
+- [x] **[Phase 3: SARIMA Baseline Model](#phase-3---sarima-baseline-model-notebooks03_sarimaipynb)**
 - [ ] **[Phase 4: LSTM Deep Learning Model](#phase-4---lstm-model-notebooks04_lstmipynb)**
 - [ ] **[Phase 5: Candidate ML Model Comparison](#phase-5---candidate-ml-model-comparison-notebooks05_candidate_ml_comparisonipynb)**
 - [ ] **[Phase 6: Hybrid Ensemble Model](#phase-6---hybrid-ensemble-model-notebooks06_hybrid_ensembleipynb)**
@@ -70,13 +70,13 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 ---
 
 ### Phase 3 - SARIMA Baseline Model [`notebooks/03_sarima.ipynb`]
-- [ ] **Step 3.1 - Prepare Split**: Train/Test split via `dataset_split` on univariate `tourist_arrivals`.
-- [ ] **Step 3.2 - Auto ARIMA Fitting**: `pmdarima.auto_arima(m=12, seasonal=True, stepwise=True)`.
-- [ ] **Step 3.3 - Out-of-Sample Forecasting**: Forecast on test period (`n_periods=len(test)`).
-- [ ] **Step 3.4 - Regime Metrics**: Compute RMSE, MAE, MAPE on (Full test set, Stable regime `shock_flag==0`, Shock regime `shock_flag==1`).
-- [ ] **Step 3.5 - Visualisation**: Plot forecast vs actual with shock bands $\rightarrow$ `results/plots/07_sarima_forecast.png`.
-- [ ] **Step 3.6 - Save Model**: Save to `models/sarima_model.pkl`.
-- **Git Commit**: `git commit -m "Phase 3: SARIMA baseline trained and evaluated"`
+- [x] **Step 3.1 - Prepare Split**: Train/Test split via `dataset_split` on univariate `tourist_arrivals`.
+- [x] **Step 3.2 - Auto ARIMA Fitting**: `pmdarima.auto_arima(m=12, seasonal=True, stepwise=True)`.
+- [x] **Step 3.3 - Out-of-Sample Forecasting**: Forecast on test period (`n_periods=len(test)`).
+- [x] **Step 3.4 - Regime Metrics**: Compute RMSE, MAE, MAPE on (Full test set, Stable regime `shock_flag==0`, Shock regime `shock_flag==1`).
+- [x] **Step 3.5 - Visualisation**: Plot forecast vs actual with shock bands $\rightarrow$ `results/plots/07_sarima_forecast.png`.
+- [x] **Step 3.6 - Save Model**: Save to `models/sarima_model.pkl`.
+- **Git Commit**: `git commit -m "Phase 3: SARIMA baseline trained and evaluated"` ✅ Done
 
 ---
 
