@@ -10,7 +10,7 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 
 - [x] **[Phase 0: Environment & Project Setup](#phase-0---environment--project-setup)**
 - [x] **[Phase 1: Data Preparation](#phase-1---data-preparation-notebooks01_data_prepipynb)**
-- [ ] **[Phase 2: Exploratory Data Analysis (EDA)](#phase-2---exploratory-data-analysis-eda-notebooks02_edaipynb)**
+- [x] **[Phase 2: Exploratory Data Analysis (EDA)](#phase-2---exploratory-data-analysis-eda-notebooks02_edaipynb)**
 - [ ] **[Phase 3: SARIMA Baseline Model](#phase-3---sarima-baseline-model-notebooks03_sarimaipynb)**
 - [ ] **[Phase 4: LSTM Deep Learning Model](#phase-4---lstm-model-notebooks04_lstmipynb)**
 - [ ] **[Phase 5: Candidate ML Model Comparison](#phase-5---candidate-ml-model-comparison-notebooks05_candidate_ml_comparisonipynb)**
@@ -57,15 +57,15 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 ---
 
 ### Phase 2 - Exploratory Data Analysis (EDA) [`notebooks/02_eda.ipynb`]
-- [ ] **Step 2.1 - Load Processed Data**: Read `data/processed/tourism_dataset_final.csv`.
-- [ ] **Step 2.2 - Time Series Plot with Shocks**: Matplotlib plot with `ax.axvspan()` shading $\rightarrow$ `results/plots/01_arrivals_timeseries.png`.
-- [ ] **Step 2.3 - Seasonal Decomposition**: `statsmodels.tsa.seasonal.seasonal_decompose(period=12, model='additive')` $\rightarrow$ `results/plots/02_seasonal_decomposition.png`.
-- [ ] **Step 2.4 - Correlation Heatmap**: Correlation matrix for arrivals, USD/LKR, Google Trends, lags, shocks $\rightarrow$ `results/plots/03_correlation_heatmap.png`.
-- [ ] **Step 2.5 - Exogenous Feature Overlay**: Dual Y-axis subplots (Arrivals vs USD/LKR & Arrivals vs Google Trends) $\rightarrow$ `results/plots/04_exogenous_overlays.png`.
-- [ ] **Step 2.6 - ACF & PACF Analysis**: Lags = 36 $\rightarrow$ `results/plots/05_acf_pacf.png`.
-- [ ] **Step 2.7 - Monthly Seasonality Boxplot**: Stable months only (`shock_flag==0`) $\rightarrow$ `results/plots/06_monthly_seasonality.png`.
-- [ ] **Step 2.8 - Summary & Insights**: Record findings for dissertation EDA section.
-- **Git Commit**: `git commit -m "Phase 2: EDA complete, 6 plots saved"`
+- [x] **Step 2.1 - Load Processed Data**: Read `data/processed/tourism_dataset_final.csv`.
+- [x] **Step 2.2 - Time Series Plot with Shocks**: Matplotlib plot with `ax.axvspan()` shading $\rightarrow$ `results/plots/01_arrivals_timeseries.png`.
+- [x] **Step 2.3 - Seasonal Decomposition**: `statsmodels.tsa.seasonal.seasonal_decompose(period=12, model='additive')` $\rightarrow$ `results/plots/02_seasonal_decomposition.png`.
+- [x] **Step 2.4 - Correlation Heatmap**: Correlation matrix for arrivals, USD/LKR, Google Trends, lags, shocks $\rightarrow$ `results/plots/03_correlation_heatmap.png`.
+- [x] **Step 2.5 - Exogenous Feature Overlay**: Dual Y-axis subplots (Arrivals vs USD/LKR & Arrivals vs Google Trends) $\rightarrow$ `results/plots/04_exogenous_overlays.png`.
+- [x] **Step 2.6 - ACF & PACF Analysis**: Lags = 36 $\rightarrow$ `results/plots/05_acf_pacf.png`.
+- [x] **Step 2.7 - Monthly Seasonality Boxplot**: Stable months only (`shock_flag==0`) $\rightarrow$ `results/plots/06_monthly_seasonality.png`.
+- [x] **Step 2.8 - Summary & Insights**: Record findings for dissertation EDA section.
+- **Git Commit**: `git commit -m "Phase 2: EDA complete, 6 plots saved"` ✅ Done
 
 ---
 
