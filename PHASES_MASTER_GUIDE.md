@@ -12,7 +12,7 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 - [x] **[Phase 1: Data Preparation](#phase-1---data-preparation-notebooks01_data_prepipynb)**
 - [x] **[Phase 2: Exploratory Data Analysis (EDA)](#phase-2---exploratory-data-analysis-eda-notebooks02_edaipynb)**
 - [x] **[Phase 3: SARIMA Baseline Model](#phase-3---sarima-baseline-model-notebooks03_sarimaipynb)**
-- [ ] **[Phase 4: LSTM Deep Learning Model](#phase-4---lstm-model-notebooks04_lstmipynb)**
+- [x] **[Phase 4: LSTM Deep Learning Model](#phase-4---lstm-model-notebooks04_lstmipynb)**
 - [ ] **[Phase 5: Candidate ML Model Comparison](#phase-5---candidate-ml-model-comparison-notebooks05_candidate_ml_comparisonipynb)**
 - [ ] **[Phase 6: Hybrid Ensemble Model](#phase-6---hybrid-ensemble-model-notebooks06_hybrid_ensembleipynb)**
 - [ ] **[Phase 7: Evaluation & Statistical Testing](#phase-7---evaluation-notebooks07_evaluationipynb)**
@@ -81,14 +81,14 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 ---
 
 ### Phase 4 - LSTM Model [`notebooks/04_lstm.ipynb`]
-- [ ] **Step 4.1 - Feature Scaling**: Fit `MinMaxScaler` on training set only for $X$ (11 features) and $y$ (`tourist_arrivals`). Save to `models/scaler_X.pkl` and `models/scaler_y.pkl`.
-- [ ] **Step 4.2 - Sequence Windowing**: Build 3D sequence windows with lookback = 12 months $\rightarrow$ shape `(n_samples, 12, 11)`.
-- [ ] **Step 4.3 - Architecture**: `LSTM(32, activation='tanh')` $\rightarrow$ `Dropout(0.2)` $\rightarrow$ `Dense(16, activation='relu')` $\rightarrow$ `Dense(1)`.
-- [ ] **Step 4.4 - Training**: `epochs=200`, `batch_size=16`, `validation_split=0.1`, `EarlyStopping(patience=15, restore_best_weights=True)`.
-- [ ] **Step 4.5 - Inverse Transform & Prediction**: Generate train and test predictions (`lstm_pred`), inverse scaled.
-- [ ] **Step 4.6 - Metrics**: Calculate overall, stable-only, and shock-only RMSE, MAE, MAPE.
-- [ ] **Step 4.7 - Save Model**: Save to `models/lstm_model.keras`.
-- **Git Commit**: `git commit -m "Phase 4: LSTM model trained, scaler saved"`
+- [x] **Step 4.1 - Feature Scaling**: Fit `MinMaxScaler` on training set only for $X$ (11 features) and $y$ (`tourist_arrivals`). Save to `models/scaler_X.pkl` and `models/scaler_y.pkl`.
+- [x] **Step 4.2 - Sequence Windowing**: Build 3D sequence windows with lookback = 12 months $\rightarrow$ shape `(n_samples, 12, 11)`.
+- [x] **Step 4.3 - Architecture**: `LSTM(32, activation='tanh')` $\rightarrow$ `Dropout(0.2)` $\rightarrow$ `Dense(16, activation='relu')` $\rightarrow$ `Dense(1)`.
+- [x] **Step 4.4 - Training**: `epochs=200`, `batch_size=16`, `validation_split=0.1`, `EarlyStopping(patience=15, restore_best_weights=True)`.
+- [x] **Step 4.5 - Inverse Transform & Prediction**: Generate train and test predictions (`lstm_pred`), inverse scaled.
+- [x] **Step 4.6 - Metrics**: Calculate overall, stable-only, and shock-only RMSE, MAE, MAPE.
+- [x] **Step 4.7 - Save Model**: Save to `models/lstm_model.keras`.
+- **Git Commit**: `git commit -m "Phase 4: LSTM model trained, scaler saved"` ✅ Done
 
 ---
 
