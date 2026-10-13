@@ -13,7 +13,7 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 - [x] **[Phase 2: Exploratory Data Analysis (EDA)](#phase-2---exploratory-data-analysis-eda-notebooks02_edaipynb)**
 - [x] **[Phase 3: SARIMA Baseline Model](#phase-3---sarima-baseline-model-notebooks03_sarimaipynb)**
 - [x] **[Phase 4: LSTM Deep Learning Model](#phase-4---lstm-model-notebooks04_lstmipynb)**
-- [ ] **[Phase 5: Candidate ML Model Comparison](#phase-5---candidate-ml-model-comparison-notebooks05_candidate_ml_comparisonipynb)**
+- [x] **[Phase 5: Candidate ML Model Comparison](#phase-5---candidate-ml-model-comparison-notebooks05_candidate_ml_comparisonipynb)**
 - [ ] **[Phase 6: Hybrid Ensemble Model](#phase-6---hybrid-ensemble-model-notebooks06_hybrid_ensembleipynb)**
 - [ ] **[Phase 7: Evaluation & Statistical Testing](#phase-7---evaluation-notebooks07_evaluationipynb)**
 - [ ] **[Phase 8: SHAP Explainability](#phase-8---shap-explainability-notebooks08_shap_analysisipynb)**
@@ -93,15 +93,15 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 ---
 
 ### Phase 5 - Candidate ML Model Comparison [`notebooks/05_candidate_ml_comparison.ipynb`]
-- [ ] **Step 5.1 - Tabular Features**: Prepare 11 exogenous/lag features on `ml_ready==1`.
-- [ ] **Step 5.2 - Define 3 Candidates**:
+- [x] **Step 5.1 - Tabular Features**: Prepare 11 exogenous/lag features on `ml_ready==1`.
+- [x] **Step 5.2 - Define 3 Candidates**:
   - SVR (`rbf`, $C=10, \epsilon=0.1$)
   - Random Forest (`n_estimators=300, max_depth=6, random_state=42`)
   - Gradient Boosting (`n_estimators=300, max_depth=4, learning_rate=0.05, random_state=42`)
-- [ ] **Step 5.3 - Cross-Validation**: 5-fold `TimeSeriesSplit` calculating validation RMSE.
-- [ ] **Step 5.4 - Select Winner**: Save comparison to `results/metrics/candidate_comparison.csv` and winner name to `models/best_model_name.txt`.
-- [ ] **Step 5.5 - SHAP Strategy Mapping**: Document TreeExplainer vs KernelExplainer choice based on winner.
-- **Git Commit**: `git commit -m "Phase 5: Candidate ML comparison complete, winner selected"`
+- [x] **Step 5.3 - Cross-Validation**: 5-fold `TimeSeriesSplit` calculating validation RMSE.
+- [x] **Step 5.4 - Select Winner**: Save comparison to `results/metrics/candidate_comparison.csv` and winner name to `models/best_model_name.txt`.
+- [x] **Step 5.5 - SHAP Strategy Mapping**: Document TreeExplainer vs KernelExplainer choice based on winner.
+- **Git Commit**: `git commit -m "Phase 5: Candidate ML comparison complete, winner selected"` ✅ Done
 
 ---
 
