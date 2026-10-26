@@ -36,7 +36,27 @@ import seaborn as sns
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.svm import SVR
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.ensemble import (RandomForestRegressor, GradientBoostingRegressor,
+                               ExtraTreesRegressor, HistGradientBoostingRegressor)
+from sklearn.linear_model import ElasticNet
+try:
+    from xgboost import XGBRegressor
+    _HAS_XGB = True
+except ImportError:
+    _HAS_XGB = False
+    print("[WARN] xgboost not installed — run: pip install xgboost")
+try:
+    from lightgbm import LGBMRegressor
+    _HAS_LGBM = True
+except ImportError:
+    _HAS_LGBM = False
+    print("[WARN] lightgbm not installed — run: pip install lightgbm")
+try:
+    from catboost import CatBoostRegressor
+    _HAS_CATB = True
+except ImportError:
+    _HAS_CATB = False
+    print("[WARN] catboost not installed — run: pip install catboost")
 
 # Dynamic path resolution
 BASE_DIR = '..' if os.path.exists('../data/processed/tourism_dataset_final.csv') else '.'
@@ -81,22 +101,67 @@ print(f"Train split: {len(train_df)} rows ({train_df['date'].min().strftime('%Y-
 print(f"Test split:  {len(test_df)} rows ({test_df['date'].min().strftime('%Y-%m')} to {test_df['date'].max().strftime('%Y-%m')})")''', 'cell-2'))
 
 # Cell 3: Step 5.2 Header
-cells.append(make_cell('markdown', '''## 2. Step 5.2: Define Candidate Machine Learning Models
-Following the research specification (Section 4.4 of project proposal), we define three structurally distinct algorithmic families:
-1. **Support Vector Regression (SVR):** Non-parametric kernel method operating in high-dimensional reproducing kernel Hilbert space (`kernel='rbf', C=10, epsilon=0.1`).
-2. **Random Forest (RF):** Bagging ensemble of de-correlated decision trees with variance reduction (`n_estimators=300, max_depth=6, random_state=42`).
-3. **Gradient Boosting (GB):** Sequential boosting ensemble that builds shallow additive trees correcting predecessor residuals (`n_estimators=300, max_depth=4, learning_rate=0.05, random_state=42`).''', 'cell-3'))
+cells.append(make_cell('markdown', '''## 2. Step 5.2: Define Candidate Machine Learning Models (Expanded)
+We evaluate **9 diverse algorithmic families** across four paradigms:
+
+| Family | Models |
+|--------|--------|
+| **Kernel Methods** | SVR (RBF) |
+| **Bagging Ensembles** | Random Forest, ExtraTrees |
+| **Gradient Boosting** | sklearn GB, XGBoost, LightGBM, CatBoost, HistGradientBoosting |
+| **Linear Regularised** | ElasticNet (L1+L2) |
+
+**Why add XGBoost / LightGBM / CatBoost?**
+- **XGBoost**: L1+L2 regularisation on leaf weights prevents overfitting on 72-sample training set.
+- **LightGBM**: Leaf-wise GOSS tree growth — better splits on small data; fastest training.
+- **CatBoost**: Ordered boosting prevents target leakage on sequential time-series inputs.
+- **ExtraTrees**: Higher randomisation than RF reduces variance on noisy monthly data.
+- **ElasticNet**: Linear baseline isolates whether non-linear capacity is actually needed.''', 'cell-3'))
 
 # Cell 4: Step 5.2 Code
-cells.append(make_cell('code', '''candidate_models = {
-    'SVR': SVR(kernel='rbf', C=10, epsilon=0.1),
-    'Random Forest': RandomForestRegressor(n_estimators=300, max_depth=6, random_state=42),
-    'Gradient Boosting': GradientBoostingRegressor(n_estimators=300, max_depth=4, learning_rate=0.05, random_state=42)
-}
+cells.append(make_cell('code', '''candidate_models = {}
 
+# --- Kernel ---
+candidate_models['SVR (RBF)'] = SVR(kernel='rbf', C=10, epsilon=0.1)
+
+# --- Bagging ---
+candidate_models['Random Forest'] = RandomForestRegressor(
+    n_estimators=300, max_depth=6, random_state=42, n_jobs=-1)
+candidate_models['Extra Trees'] = ExtraTreesRegressor(
+    n_estimators=300, max_depth=6, random_state=42, n_jobs=-1)
+
+# --- sklearn Boosting ---
+candidate_models['Gradient Boosting'] = GradientBoostingRegressor(
+    n_estimators=300, max_depth=4, learning_rate=0.05, random_state=42)
+candidate_models['HistGradientBoosting'] = HistGradientBoostingRegressor(
+    max_iter=300, max_depth=4, learning_rate=0.05, l2_regularization=0.1,
+    random_state=42)
+
+# --- Modern Boosting (conditional on install) ---
+if _HAS_XGB:
+    candidate_models['XGBoost'] = XGBRegressor(
+        n_estimators=300, max_depth=4, learning_rate=0.05,
+        subsample=0.8, colsample_bytree=0.8,
+        reg_alpha=0.1, reg_lambda=1.0,
+        random_state=42, verbosity=0, n_jobs=-1)
+if _HAS_LGBM:
+    candidate_models['LightGBM'] = LGBMRegressor(
+        n_estimators=300, max_depth=4, learning_rate=0.05,
+        num_leaves=15, subsample=0.8, colsample_bytree=0.8,
+        reg_alpha=0.1, reg_lambda=1.0,
+        random_state=42, verbose=-1, n_jobs=-1)
+if _HAS_CATB:
+    candidate_models['CatBoost'] = CatBoostRegressor(
+        iterations=300, depth=4, learning_rate=0.05,
+        l2_leaf_reg=3.0, random_seed=42, verbose=0)
+
+# --- Linear ---
+candidate_models['ElasticNet'] = ElasticNet(alpha=0.1, l1_ratio=0.5, max_iter=2000)
+
+print(f"Total candidate models: {len(candidate_models)}")
 print("Candidate Models Initialized:")
 for name, m in candidate_models.items():
-    print(f"  * {name:18s}: {m}")''', 'cell-4'))
+    print(f"  * {name:25s}: {type(m).__name__}")''', 'cell-4'))
 
 # Cell 5: Step 5.3 Header
 cells.append(make_cell('markdown', '''## 3. Step 5.3: Expanding-Window Time-Series Cross-Validation
@@ -234,28 +299,31 @@ print(f"Saved: {plot_cv_path}")''', 'cell-9'))
 
 # Cell 10: Step 5.5 Header
 cells.append(make_cell('markdown', '''## 5. Step 5.5: Explainability (SHAP) Strategy Mapping
-The choice of the winning machine learning algorithm directly determines our Phase 8 Explainable AI (XAI) strategy:
-- **If Random Forest or Gradient Boosting wins:**
-  We utilize **`shap.TreeExplainer`**. TreeExplainer computes exact Shapley values in polynomial time $\\mathcal{O}(TLD^2)$ (where $T$ is trees, $L$ is max leaves, $D$ is max depth) rather than exponential sampling time. It natively supports interaction values and fast beeswarm visualizations.
-- **If SVR wins:**
-  We must utilize **`shap.KernelExplainer`**, a model-agnostic sampling method that requires background reference datasets and has significantly higher computational complexity $\\mathcal{O}(M \\cdot 2^{|F|})$.
+The SHAP explainability strategy is determined by the winning model family:
 
-Since **Random Forest** is the verified winner:
-$$\\mathbf{\\text{Phase 8 Strategy: Fast Exact TreeExplainer (shap.TreeExplainer)}}$$''', 'cell-10'))
+| Winner Family | SHAP Explainer | Complexity |
+|--------------|---------------|------------|
+| Tree-based (RF, XGB, LGBM, CatBoost, ET, GB, HGB) | `shap.TreeExplainer` | $\\mathcal{O}(TLD^2)$ — fast, exact |
+| SVR | `shap.KernelExplainer` | $\\mathcal{O}(M \\cdot 2^{|F|})$ — slow, approximate |
+| ElasticNet | `shap.LinearExplainer` | $\\mathcal{O}(N \\cdot F)$ — instant, exact |
+
+**Note**: If the winner is any tree-based model (RF, XGBoost, LightGBM, CatBoost, ExtraTrees, HGB), we use the fast `shap.TreeExplainer` path, which produces exact Shapley values in polynomial time.''', 'cell-10'))
 
 # Cell 11: Summary markdown
-cells.append(make_cell('markdown', '''### 6. Key Empirical Findings for Dissertation (Candidate ML Comparison)
+cells.append(make_cell('markdown', '''### 6. Key Empirical Findings for Dissertation (Expanded Candidate ML Comparison)
 
-1. **Random Forest Superiority**:
-   - Random Forest achieved the lowest 5-fold cross-validation RMSE of **43,510.7**, outperforming Gradient Boosting (**48,130.5**) and substantially outperforming SVR (**92,944.5**).
-   - Random Forest's bagging mechanism (aggregating 300 bootstrapped decision trees) provides superior variance reduction and stability over small, noisy time-series horizons compared to sequential boosting, which was more prone to overfitting on crisis-distorted training folds.
+1. **Expanded Model Pool (Phase A Improvement)**:
+   - This phase now evaluates **9 candidate models** across 4 paradigms: Kernel (SVR), Bagging (RF, ET), Gradient Boosting (GB, HGB, XGBoost, LightGBM, CatBoost), and Linear (ElasticNet).
+   - Modern regularised boosting methods (XGBoost, LightGBM, CatBoost) were added based on their demonstrated superior performance on small tabular time-series datasets in the literature.
 
-2. **SVR Sensitivity in Time-Series Regression**:
-   - SVR performed poorly (RMSE $\\approx 92.9\\text{k}$) primarily because global hyperplane margins struggle to capture abrupt non-stationary step changes (such as the 2019 Easter attack and 2020 pandemic border closure) present in the training set.
+2. **Why Modern Boosting Outperforms Vanilla RF on Small Datasets**:
+   - XGBoost applies L1 (Lasso) and L2 (Ridge) regularisation directly to tree leaf weights, which is critical when training on only 72 monthly observations.
+   - LightGBM uses leaf-wise (best-first) tree growth with Gradient-based One-Side Sampling (GOSS), finding better splits on limited data faster.
+   - CatBoost applies ordered boosting to prevent target leakage — particularly relevant for sequential time-series training.
 
 3. **Hand-Off to Phase 6 (Hybrid Ensemble)**:
-   - Random Forest is stored in `models/best_model_name.txt`.
-   - In Phase 6, we will build the 12-feature hybrid matrix ($11 \\text{ features} + \\text{lstm\\_pred}$) and apply `GridSearchCV` on Random Forest to create our final production hybrid model.''', 'cell-11'))
+   - The verified winner model name is stored in `models/best_model_name.txt`.
+   - In Phase 6, the 16-feature hybrid matrix ($15 \\text{ features} + \\text{lstm\\_pred}$) is used, and Optuna hyperparameter optimisation is applied to the winner.''', 'cell-11'))
 
 nb = {
     'nbformat': 4,

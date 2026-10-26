@@ -90,13 +90,18 @@ Because the winning model is tree-based (**Random Forest**), we instantiate **`s
 Unlike model-agnostic sampling approximations (`KernelExplainer`), `TreeExplainer` exploits tree structure to compute **exact** Shapley values in polynomial time $\\mathcal{O}(T \\cdot L \\cdot D^2)$ where $T$ is the number of trees (400), $L$ is maximum leaves, and $D$ is maximum tree depth (4).''', 'cell-3'))
 
 # Cell 4: Step 8.2 Code
-cells.append(make_cell('code', '''print("Initializing shap.TreeExplainer on production Random Forest ensemble...")
-explainer = shap.TreeExplainer(hybrid_model)
+cells.append(make_cell('code', '''print(f"Initializing SHAP Explainer on production model ({type(hybrid_model).__name__})...")
+try:
+    explainer = shap.TreeExplainer(hybrid_model)
+    shap_values = explainer.shap_values(X_test)
+    base_val = float(np.ravel(explainer.expected_value)[0])
+except Exception as e:
+    print(f"TreeExplainer fallback triggered ({e}). Using model-agnostic shap.Explainer...")
+    explainer = shap.Explainer(hybrid_model.predict, X_test)
+    shap_obj = explainer(X_test)
+    shap_values = shap_obj.values
+    base_val = float(np.ravel(shap_obj.base_values)[0])
 
-# Compute Shapley attribution matrix across all 48 test months
-shap_values = explainer.shap_values(X_test)
-
-base_val = float(np.ravel(explainer.expected_value)[0])
 print(f"Computed SHAP Matrix Dimensions: {shap_values.shape}")
 print(f"Base Value (Expected Prediction E[f(x)]): {base_val:,.2f} arrivals")''', 'cell-4'))
 

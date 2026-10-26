@@ -7,6 +7,12 @@ statsmodels>=0.14.0
 pmdarima>=2.0.4
 openpyxl>=3.1.0
 
+# Advanced ML & Hyperparameter Tuning
+xgboost>=2.0.0
+lightgbm>=4.0.0
+catboost>=1.2.0
+optuna>=3.5.0
+
 # Deep Learning
 tensorflow>=2.15.0
 

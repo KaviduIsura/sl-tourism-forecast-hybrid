@@ -45,8 +45,25 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import (RandomForestRegressor, GradientBoostingRegressor,
+                               ExtraTreesRegressor, HistGradientBoostingRegressor,
+                               VotingRegressor)
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+try:
+    from xgboost import XGBRegressor
+    _HAS_XGB = True
+except ImportError:
+    _HAS_XGB = False
+try:
+    from lightgbm import LGBMRegressor
+    _HAS_LGBM = True
+except ImportError:
+    _HAS_LGBM = False
+try:
+    from catboost import CatBoostRegressor
+    _HAS_CATB = True
+except ImportError:
+    _HAS_CATB = False
 
 # Dynamic path resolution
 BASE_DIR = '..' if os.path.exists('../data/processed/tourism_dataset_final.csv') else '.'
@@ -99,48 +116,109 @@ print(f"12 Features: {hybrid_feature_cols}")''', 'cell-2'))
 
 # Cell 3: Step 6.3 Header
 cells.append(make_cell('markdown', '''## 2. Step 6.3: Retrain Candidate Winner on Hybrid Feature Space
-We load the winning algorithm identified in Phase 5 from `models/best_model_name.txt` (Random Forest).
-Before hyperparameter optimization, we evaluate a baseline Random Forest on the 12 features to establish an initial benchmark.''', 'cell-3'))
+We load the winning algorithm identified in Phase 5 from `models/best_model_name.txt`.
+We dynamically instantiate the winner (e.g. XGBoost, LightGBM, Random Forest, ExtraTrees, or CatBoost) on the 12-dimensional hybrid matrix and establish an un-tuned baseline.''', 'cell-3'))
 
 # Cell 4: Step 6.3 Code
 cells.append(make_cell('code', '''winner_txt = os.path.join(MODELS_DIR, 'best_model_name.txt')
-with open(winner_txt, 'r') as f:
-    best_algo_name = f.read().strip()
+if os.path.exists(winner_txt):
+    with open(winner_txt, 'r') as f:
+        best_algo_name = f.read().strip()
+else:
+    best_algo_name = 'Random Forest'
 
 print(f"Loaded Candidate Winner from Phase 5: '{best_algo_name}'")
 
-# Fit initial baseline model
-rf_baseline = RandomForestRegressor(n_estimators=300, max_depth=6, random_state=42)
-rf_baseline.fit(X_train, y_train)
+def get_base_model(name):
+    if name == 'XGBoost' and _HAS_XGB:
+        return XGBRegressor(n_estimators=300, max_depth=4, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8, reg_alpha=0.1, reg_lambda=1.0, random_state=42, verbosity=0)
+    elif name == 'LightGBM' and _HAS_LGBM:
+        return LGBMRegressor(n_estimators=300, max_depth=4, learning_rate=0.05, num_leaves=15, subsample=0.8, colsample_bytree=0.8, reg_alpha=0.1, reg_lambda=1.0, random_state=42, verbose=-1)
+    elif name == 'CatBoost' and _HAS_CATB:
+        return CatBoostRegressor(iterations=300, depth=4, learning_rate=0.05, l2_leaf_reg=3.0, random_seed=42, verbose=0)
+    elif name == 'Extra Trees':
+        return ExtraTreesRegressor(n_estimators=300, max_depth=6, random_state=42)
+    elif name == 'Gradient Boosting':
+        return GradientBoostingRegressor(n_estimators=300, max_depth=4, learning_rate=0.05, random_state=42)
+    elif name == 'HistGradientBoosting':
+        return HistGradientBoostingRegressor(max_iter=300, max_depth=4, learning_rate=0.05, l2_regularization=0.1, random_state=42)
+    else:
+        return RandomForestRegressor(n_estimators=300, max_depth=6, random_state=42)
 
-baseline_test_preds = rf_baseline.predict(X_test)
+baseline_model = get_base_model(best_algo_name)
+baseline_model.fit(X_train, y_train)
+
+baseline_test_preds = baseline_model.predict(X_test)
 rmse_base = np.sqrt(mean_squared_error(y_test, baseline_test_preds))
 mae_base  = mean_absolute_error(y_test, baseline_test_preds)
 mape_base = np.mean(np.abs((y_test - baseline_test_preds) / np.maximum(y_test, 1))) * 100
 
-print(f"Initial Hybrid RF (Default Hyperparameters):")
+print(f"Initial Hybrid {best_algo_name} (Default Hyperparameters):")
 print(f"  * Test RMSE: {rmse_base:,.1f} | Test MAE: {mae_base:,.1f} | Test MAPE: {mape_base:.2f}%")''', 'cell-4'))
 
 # Cell 5: Step 6.4 Header
-cells.append(make_cell('markdown', '''## 3. Step 6.4: Hyperparameter Optimization via `GridSearchCV`
-To ensure methodological completeness (Proposal Section 4.5), we optimize the meta-regressor using `GridSearchCV`:
-- Evaluated parameters: `n_estimators`, `max_depth`, `min_samples_split`, `min_samples_leaf`, `max_features`
-- Temporal Cross-Validation: 5-Fold expanding `TimeSeriesSplit`
-- Scoring metric: `neg_root_mean_squared_error`''', 'cell-5'))
+cells.append(make_cell('markdown', '''## 3. Step 6.4: Model-Tailored Hyperparameter Optimization via `GridSearchCV` & Ensemble Evaluation
+We optimize the meta-regressor using `GridSearchCV` under 5-fold `TimeSeriesSplit` cross-validation:
+- Evaluates hyperparameter grids specifically calibrated to the winning model family.
+- Evaluates an optional Voting Ensemble (blending top candidate families) to assess whether multi-model stacking outperforms a single meta-regressor.
+- Selects the final configuration that minimizes temporal cross-validation RMSE.''', 'cell-5'))
 
 # Cell 6: Step 6.4 Code
-cells.append(make_cell('code', '''param_grid = {
-    'n_estimators': [100, 200, 300, 400],
-    'max_depth': [4, 6, 8, 10, None],
-    'min_samples_split': [2, 5, 10],
-    'min_samples_leaf': [1, 2, 4],
-    'max_features': ['sqrt', 1.0, 0.8]
-}
+cells.append(make_cell('code', '''tscv = TimeSeriesSplit(n_splits=5)
 
-tscv = TimeSeriesSplit(n_splits=5)
+def get_param_grid(name):
+    if name == 'XGBoost' and _HAS_XGB:
+        return {
+            'n_estimators': [150, 300, 450],
+            'max_depth': [3, 4, 6],
+            'learning_rate': [0.03, 0.05, 0.1],
+            'subsample': [0.7, 0.85, 1.0],
+            'reg_alpha': [0.01, 0.1, 1.0],
+            'reg_lambda': [0.5, 1.0, 3.0]
+        }
+    elif name == 'LightGBM' and _HAS_LGBM:
+        return {
+            'n_estimators': [150, 300, 450],
+            'max_depth': [3, 4, 6],
+            'learning_rate': [0.03, 0.05, 0.1],
+            'num_leaves': [10, 15, 31],
+            'subsample': [0.7, 0.85, 1.0]
+        }
+    elif name == 'CatBoost' and _HAS_CATB:
+        return {
+            'iterations': [150, 300, 450],
+            'depth': [3, 4, 6],
+            'learning_rate': [0.03, 0.05, 0.1],
+            'l2_leaf_reg': [1.0, 3.0, 5.0]
+        }
+    elif name == 'Gradient Boosting':
+        return {
+            'n_estimators': [100, 200, 300],
+            'max_depth': [3, 4, 6],
+            'learning_rate': [0.03, 0.05, 0.1],
+            'subsample': [0.7, 0.85, 1.0]
+        }
+    elif name == 'Extra Trees':
+        return {
+            'n_estimators': [100, 200, 300, 400],
+            'max_depth': [4, 6, 8, None],
+            'min_samples_split': [2, 5],
+            'min_samples_leaf': [1, 2]
+        }
+    else:  # Random Forest default
+        return {
+            'n_estimators': [100, 200, 300, 400],
+            'max_depth': [4, 6, 8, None],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 2, 4],
+            'max_features': ['sqrt', 1.0, 0.8]
+        }
+
+param_grid = get_param_grid(best_algo_name)
+estimator = get_base_model(best_algo_name)
 
 grid_search = GridSearchCV(
-    estimator=RandomForestRegressor(random_state=42),
+    estimator=estimator,
     param_grid=param_grid,
     cv=tscv,
     scoring='neg_root_mean_squared_error',
@@ -148,19 +226,59 @@ grid_search = GridSearchCV(
     verbose=0
 )
 
-print(f"Running GridSearchCV over {np.prod([len(v) for v in param_grid.values()])} hyperparameter combinations...")
+print(f"Running GridSearchCV for {best_algo_name} over {np.prod([len(v) for v in param_grid.values()])} hyperparameter combinations...")
 grid_search.fit(X_train, y_train)
 
 best_params = grid_search.best_params_
 best_cv_rmse = -grid_search.best_score_
-hybrid_model = grid_search.best_estimator_
+tuned_single_model = grid_search.best_estimator_
+
+# Check top candidate models to test a Voting Ensemble
+comp_csv = os.path.join(METRICS_DIR, 'candidate_comparison.csv')
+voting_model = None
+voting_cv_rmse = float('inf')
+
+if os.path.exists(comp_csv):
+    top_models_df = pd.read_csv(comp_csv)
+    top_names = top_models_df.head(3)['Model'].tolist()
+    estimators_list = []
+    for m_name in top_names:
+        m_inst = get_base_model(m_name)
+        if m_inst is not None:
+            safe_name = m_name.lower().replace(' ', '_').replace('(', '').replace(')', '')
+            estimators_list.append((safe_name, m_inst))
+    if len(estimators_list) >= 2:
+        voting_cand = VotingRegressor(estimators=estimators_list)
+        # Evaluate voting candidate on CV
+        v_scores = []
+        for tr_idx, val_idx in tscv.split(X_train):
+            voting_cand.fit(X_train.iloc[tr_idx], y_train.iloc[tr_idx])
+            v_preds = voting_cand.predict(X_train.iloc[val_idx])
+            v_scores.append(np.sqrt(mean_squared_error(y_train.iloc[val_idx], v_preds)))
+        voting_cv_rmse = np.mean(v_scores)
+        print(f"Voting Ensemble ({[e[0] for e in estimators_list]}) CV RMSE: {voting_cv_rmse:,.1f}")
+        if voting_cv_rmse < best_cv_rmse:
+            print(f"--> Voting Ensemble beats single model ({voting_cv_rmse:,.1f} vs {best_cv_rmse:,.1f})!")
+            voting_cand.fit(X_train, y_train)
+            voting_model = voting_cand
+
+# Select optimal production model (lowest CV RMSE)
+if voting_model is not None and voting_cv_rmse < best_cv_rmse:
+    hybrid_model = voting_model
+    final_cv_rmse = voting_cv_rmse
+    selected_architecture = f"Voting Ensemble ({', '.join([e[0] for e in estimators_list])})"
+else:
+    hybrid_model = tuned_single_model
+    final_cv_rmse = best_cv_rmse
+    selected_architecture = f"Tuned {best_algo_name}"
 
 print("\\n" + "="*70)
-print("             OPTIMAL HYBRID ENSEMBLE HYPERPARAMETERS")
+print(f"             OPTIMAL HYBRID ENSEMBLE CONFIGURATION")
 print("="*70)
-for param, val in best_params.items():
-    print(f"  * {param:20s}: {val}")
-print(f"  * Best Mean CV RMSE : {best_cv_rmse:,.1f}")
+print(f"  * Selected Architecture: {selected_architecture}")
+print(f"  * Best Mean CV RMSE    : {final_cv_rmse:,.1f}")
+if hybrid_model == tuned_single_model:
+    print(f"  * Tuned Parameters     : {best_params}")
 print("="*70)''', 'cell-6'))
 
 # Cell 7: Step 6.5 Header
