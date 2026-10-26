@@ -1,0 +1,235 @@
+/* ==========================================================================
+   Sri Lanka Tourism Forecasting Observatory — Master Design System
+   Aesthetic: Authentic Sri Lankan Tourism, Ceylon Gold, Ocean Sapphire & Emerald
+   ========================================================================== */
+
+:root {
+  /* Color Palette */
+  --bg-dark: #070d1e;
+  --bg-gradient: radial-gradient(circle at 15% 15%, rgba(11, 102, 106, 0.15) 0%, transparent 40%),
+                 radial-gradient(circle at 85% 25%, rgba(229, 169, 60, 0.12) 0%, transparent 45%),
+                 linear-gradient(180deg, #070d1e 0%, #0a1428 50%, #060b18 100%);
+  
+  --ocean-deep: #081b33;
+  --ocean-blue: #0f2c59;
+  --ocean-cyan: #0284c7;
+  --emerald-green: #059669;
+  --emerald-glow: rgba(5, 150, 105, 0.3);
+  --ceylon-gold: #e5a93c;
+  --ceylon-gold-hover: #f59e0b;
+  --ceylon-gold-glow: rgba(229, 169, 60, 0.28);
+  --shock-crimson: #e11d48;
+  --shock-glow: rgba(225, 29, 72, 0.3);
+
+  /* Glassmorphism Cards */
+  --glass-bg: rgba(15, 23, 42, 0.75);
+  --glass-bg-hover: rgba(22, 33, 62, 0.85);
+  --glass-border: rgba(229, 169, 60, 0.18);
+  --glass-border-hover: rgba(229, 169, 60, 0.45);
+  --glass-inner: rgba(255, 255, 255, 0.03);
+
+  /* Typography */
+  --font-brand: 'Cinzel', Georgia, serif;
+  --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, monospace;
+
+  /* Text Colors */
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --text-gold: #fcd34d;
+
+  /* Shadows */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-gold: 0 0 25px rgba(229, 169, 60, 0.2);
+  --shadow-shock: 0 0 25px rgba(225, 29, 72, 0.25);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--bg-dark);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(229, 169, 60, 0.3);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ceylon-gold);
+}
+
+/* Utilities */
+.container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.gold-text {
+  color: var(--ceylon-gold);
+}
+
+.emerald-text {
+  color: var(--emerald-green);
+}
+
+.shock-text {
+  color: var(--shock-crimson);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--shadow-gold);
+}
+
+/* Badge Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-gold {
+  background: rgba(229, 169, 60, 0.15);
+  border: 1px solid rgba(229, 169, 60, 0.4);
+  color: var(--text-gold);
+}
+
+.badge-emerald {
+  background: rgba(5, 150, 105, 0.15);
+  border: 1px solid rgba(5, 150, 105, 0.4);
+  color: #34d399;
+}
+
+.badge-shock {
+  background: rgba(225, 29, 72, 0.18);
+  border: 1px solid rgba(225, 29, 72, 0.5);
+  color: #fb7185;
+  animation: pulse-shock 2s infinite;
+}
+
+@keyframes pulse-shock {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
+}
+
+/* Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-main);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+  outline: none;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #e5a93c 0%, #b8860b 100%);
+  color: #0b1329;
+  box-shadow: 0 4px 15px rgba(229, 169, 60, 0.35);
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(229, 169, 60, 0.5);
+}
+
+.btn-outline {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(229, 169, 60, 0.3);
+  color: var(--text-main);
+}
+
+.btn-outline:hover {
+  background: rgba(229, 169, 60, 0.15);
+  border-color: var(--ceylon-gold);
+}
+
+/* Sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-pill);
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ceylon-gold);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(229, 169, 60, 0.7);
+  transition: transform 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade {
+  animation: fadeIn 0.4s ease forwards;
+}
