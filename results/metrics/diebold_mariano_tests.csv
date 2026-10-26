@@ -1,0 +1,5 @@
+Comparison,Evaluation Cohort,Mean Loss Diff,DM Statistic,p-value,Statistically Significant?
+SARIMA vs Hybrid Ensemble,Full Test (N=48),697471751.246004,1.7455592004980125,0.08742242343028517,No (p >= 0.05)
+LSTM vs Hybrid Ensemble,Full Test (N=48),1096079932.9244974,2.3840129926942732,0.021214806444086687,Yes (p < 0.05)
+SARIMA vs Hybrid Ensemble,Shock Regime (N=12),1316073006.4090753,4.128456566472139,0.0016764966897089284,Yes (p < 0.01)
+LSTM vs Hybrid Ensemble,Shock Regime (N=12),921546953.5838417,2.754832526024094,0.018728126923768684,Yes (p < 0.05)

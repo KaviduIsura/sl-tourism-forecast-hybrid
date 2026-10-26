@@ -15,7 +15,7 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 - [x] **[Phase 4: LSTM Deep Learning Model](#phase-4---lstm-model-notebooks04_lstmipynb)**
 - [x] **[Phase 5: Candidate ML Model Comparison](#phase-5---candidate-ml-model-comparison-notebooks05_candidate_ml_comparisonipynb)**
 - [x] **[Phase 6: Hybrid Ensemble Model](#phase-6---hybrid-ensemble-model-notebooks06_hybrid_ensembleipynb)**
-- [ ] **[Phase 7: Evaluation & Statistical Testing](#phase-7---evaluation-notebooks07_evaluationipynb)**
+- [x] **[Phase 7: Evaluation & Statistical Testing](#phase-7---evaluation-notebooks07_evaluationipynb)**
 - [ ] **[Phase 8: SHAP Explainability](#phase-8---shap-explainability-notebooks08_shap_analysisipynb)**
 - [ ] **[Phase 9: FastAPI Backend](#phase-9---fastapi-backend-backend)**
 - [ ] **[Phase 10: React Web Dashboard](#phase-10---react-web-dashboard-frontend)**
@@ -117,12 +117,12 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 ---
 
 ### Phase 7 - Evaluation & Statistical Testing [`notebooks/07_evaluation.ipynb`]
-- [ ] **Step 7.1 - Aggregate Predictions**: Load ground truth, SARIMA, LSTM, and Hybrid predictions.
-- [ ] **Step 7.2 - Master Metrics Table**: Compute RMSE, MAE, MAPE, $R^2$ across Full, Stable, and Shock regimes $\rightarrow$ `results/metrics/model_comparison.csv`.
-- [ ] **Step 7.3 - Diebold-Mariano Test**: Implement DM test in scipy (SARIMA vs Hybrid & LSTM vs Hybrid on Full and Shock-only periods).
-- [ ] **Step 7.4 - Master Comparison Chart**: Plot Actual vs SARIMA vs LSTM vs Hybrid with shock highlights $\rightarrow$ `results/plots/08_forecast_comparison.png`.
-- [ ] **Step 7.5 - Residual Analysis**: Monthly error decomposition and shock error tracking $\rightarrow$ `results/plots/09_error_analysis.png`.
-- **Git Commit**: `git commit -m "Phase 7: Full evaluation with DM test complete"`
+- [x] **Step 7.1 - Aggregate Predictions**: Load ground truth, SARIMA, LSTM, and Hybrid predictions.
+- [x] **Step 7.2 - Master Metrics Table**: Compute RMSE, MAE, MAPE, $R^2$ across Full, Stable, and Shock regimes $\rightarrow$ `results/metrics/model_comparison.csv`.
+- [x] **Step 7.3 - Diebold-Mariano Test**: Implement DM test in scipy (SARIMA vs Hybrid & LSTM vs Hybrid on Full and Shock-only periods).
+- [x] **Step 7.4 - Master Comparison Chart**: Plot Actual vs SARIMA vs LSTM vs Hybrid with shock highlights $\rightarrow$ `results/plots/08_forecast_comparison.png`.
+- [x] **Step 7.5 - Residual Analysis**: Monthly error decomposition and shock error tracking $\rightarrow$ `results/plots/09_error_analysis.png`.
+- **Git Commit**: `git commit -m "Phase 7: Full evaluation with DM test complete"` ✅ Done
 
 ---
 
