@@ -14,7 +14,7 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 - [x] **[Phase 3: SARIMA Baseline Model](#phase-3---sarima-baseline-model-notebooks03_sarimaipynb)**
 - [x] **[Phase 4: LSTM Deep Learning Model](#phase-4---lstm-model-notebooks04_lstmipynb)**
 - [x] **[Phase 5: Candidate ML Model Comparison](#phase-5---candidate-ml-model-comparison-notebooks05_candidate_ml_comparisonipynb)**
-- [ ] **[Phase 6: Hybrid Ensemble Model](#phase-6---hybrid-ensemble-model-notebooks06_hybrid_ensembleipynb)**
+- [x] **[Phase 6: Hybrid Ensemble Model](#phase-6---hybrid-ensemble-model-notebooks06_hybrid_ensembleipynb)**
 - [ ] **[Phase 7: Evaluation & Statistical Testing](#phase-7---evaluation-notebooks07_evaluationipynb)**
 - [ ] **[Phase 8: SHAP Explainability](#phase-8---shap-explainability-notebooks08_shap_analysisipynb)**
 - [ ] **[Phase 9: FastAPI Backend](#phase-9---fastapi-backend-backend)**
@@ -106,13 +106,13 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 ---
 
 ### Phase 6 - Hybrid Ensemble Model [`notebooks/06_hybrid_ensemble.ipynb`]
-- [ ] **Step 6.1 - Load LSTM Predictions**: Append `lstm_pred` feature to train and test sets.
-- [ ] **Step 6.2 - Build 12-Feature Hybrid Matrix**: 11 features + `lstm_pred`.
-- [ ] **Step 6.3 - Retrain Candidate Winner**: Train baseline with stacking features.
-- [ ] **Step 6.4 - Hyperparameter Optimization**: `GridSearchCV` with `TimeSeriesSplit(n_splits=5)`, scoring `neg_root_mean_squared_error`.
-- [ ] **Step 6.5 - Evaluate on Test**: Predict on test set using `best_estimator_`.
-- [ ] **Step 6.6 - Save Stacking Model**: Export fitted model to `models/hybrid_model.joblib`.
-- **Git Commit**: `git commit -m "Phase 6: Hybrid ensemble model saved"`
+- [x] **Step 6.1 - Load LSTM Predictions**: Append `lstm_pred` feature to train and test sets.
+- [x] **Step 6.2 - Build 12-Feature Hybrid Matrix**: 11 features + `lstm_pred`.
+- [x] **Step 6.3 - Retrain Candidate Winner**: Train baseline with stacking features.
+- [x] **Step 6.4 - Hyperparameter Optimization**: `GridSearchCV` with `TimeSeriesSplit(n_splits=5)`, scoring `neg_root_mean_squared_error`.
+- [x] **Step 6.5 - Evaluate on Test**: Predict on test set using `best_estimator_`.
+- [x] **Step 6.6 - Save Stacking Model**: Export fitted model to `models/hybrid_model.joblib`.
+- **Git Commit**: `git commit -m "Phase 6: Hybrid ensemble model saved"` ✅ Done
 
 ---
 
