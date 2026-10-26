@@ -16,7 +16,7 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 - [x] **[Phase 5: Candidate ML Model Comparison](#phase-5---candidate-ml-model-comparison-notebooks05_candidate_ml_comparisonipynb)**
 - [x] **[Phase 6: Hybrid Ensemble Model](#phase-6---hybrid-ensemble-model-notebooks06_hybrid_ensembleipynb)**
 - [x] **[Phase 7: Evaluation & Statistical Testing](#phase-7---evaluation-notebooks07_evaluationipynb)**
-- [ ] **[Phase 8: SHAP Explainability](#phase-8---shap-explainability-notebooks08_shap_analysisipynb)**
+- [x] **[Phase 8: SHAP Explainability](#phase-8---shap-explainability-notebooks08_shap_analysisipynb)**
 - [ ] **[Phase 9: FastAPI Backend](#phase-9---fastapi-backend-backend)**
 - [ ] **[Phase 10: React Web Dashboard](#phase-10---react-web-dashboard-frontend)**
 - [ ] **[Phase 11: Mobile App (PWA - Stretch Goal)](#phase-11---mobile-app-pwa---stretch-goal)**
@@ -127,13 +127,13 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 ---
 
 ### Phase 8 - SHAP Explainability [`notebooks/08_shap_analysis.ipynb`]
-- [ ] **Step 8.1 - Load Model & Data**: `hybrid_model.joblib` and 12 test features.
-- [ ] **Step 8.2 - Compute SHAP Values**: Generate explainer and compute feature contributions.
-- [ ] **Step 8.3 - Global Summary**: Summary beeswarm plot $\rightarrow$ `results/shap/shap_summary.png`.
-- [ ] **Step 8.4 - Shock Regime SHAP**: SHAP analysis for `shock_flag==1` $\rightarrow$ `results/shap/shap_shock_periods.png`.
-- [ ] **Step 8.5 - Stable Regime SHAP**: SHAP analysis for `shock_flag==0` $\rightarrow$ `results/shap/shap_stable_periods.png`.
-- [ ] **Step 8.6 - Export Feature Importance**: Save descending mean absolute SHAP values to `backend/data/shap_importance.csv`.
-- **Git Commit**: `git commit -m "Phase 8: SHAP analysis complete, importance CSV saved"`
+- [x] **Step 8.1 - Load Model & Data**: `hybrid_model.joblib` and 12 test features.
+- [x] **Step 8.2 - Compute SHAP Values**: Generate explainer and compute feature contributions.
+- [x] **Step 8.3 - Global Summary**: Summary beeswarm plot $\rightarrow$ `results/shap/shap_summary.png`.
+- [x] **Step 8.4 - Shock Regime SHAP**: SHAP analysis for `shock_flag==1` $\rightarrow$ `results/shap/shap_shock_periods.png`.
+- [x] **Step 8.5 - Stable Regime SHAP**: SHAP analysis for `shock_flag==0` $\rightarrow$ `results/shap/shap_stable_periods.png`.
+- [x] **Step 8.6 - Export Feature Importance**: Save descending mean absolute SHAP values to `backend/data/shap_importance.csv`.
+- **Git Commit**: `git commit -m "Phase 8: SHAP analysis complete, importance CSV saved"` ✅ Done
 
 ---
 
