@@ -17,7 +17,7 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 - [x] **[Phase 6: Hybrid Ensemble Model](#phase-6---hybrid-ensemble-model-notebooks06_hybrid_ensembleipynb)**
 - [x] **[Phase 7: Evaluation & Statistical Testing](#phase-7---evaluation-notebooks07_evaluationipynb)**
 - [x] **[Phase 8: SHAP Explainability](#phase-8---shap-explainability-notebooks08_shap_analysisipynb)**
-- [ ] **[Phase 9: FastAPI Backend](#phase-9---fastapi-backend-backend)**
+- [x] **[Phase 9: FastAPI Backend](#phase-9---fastapi-backend-backend)**
 - [ ] **[Phase 10: React Web Dashboard](#phase-10---react-web-dashboard-frontend)**
 - [ ] **[Phase 11: Mobile App (PWA - Stretch Goal)](#phase-11---mobile-app-pwa---stretch-goal)**
 - [ ] **[Phase 12: Deployment & DevOps](#phase-12---deployment--devops)**
@@ -138,16 +138,18 @@ Hybrid LSTM-ML Ensemble for Tourist Arrival Prediction under Exogenous Shocks
 ---
 
 ### Phase 9 - FastAPI Backend [`backend/`]
-- [ ] **Step 9.1 - Requirements**: Define `backend/requirements.txt`.
-- [ ] **Step 9.2 - Model Loader**: `backend/model_loader.py` with singleton cached `get_model()`.
-- [ ] **Step 9.3 - Schemas**: `backend/schemas.py` with Pydantic `ForecastRequest` and `ForecastResponse`.
-- [ ] **Step 9.4 - API Routes & CORS**: `backend/main.py` with endpoints:
-  - `GET /` (Health check)
-  - `POST /predict` (Returns forecast)
-  - `GET /history` (Serves historical monthly data)
+- [x] **Step 9.1 - Requirements**: Define `backend/requirements.txt`.
+- [x] **Step 9.2 - Model Loader**: `backend/model_loader.py` with singleton cached `get_model()`, scalers, LSTM, and SHAP explainer.
+- [x] **Step 9.3 - Schemas**: `backend/schemas.py` with Pydantic `ForecastRequest`, `ForecastResponse`, `ScenarioSimulationRequest`, `ShapImportanceResponse`, etc.
+- [x] **Step 9.4 - API Routes & CORS**: `backend/main.py` with endpoints:
+  - `GET /` (Health check & status)
+  - `POST /predict` (Returns forecast with CI and SHAP attributions)
+  - `POST /simulate` (Scenario shock simulation)
+  - `GET /history` & `GET /history/summary` (Serves historical monthly data)
   - `GET /shap-importance` (Serves SHAP feature rankings)
-- [ ] **Step 9.5 - Local Verification**: Test endpoints and Swagger UI at `/docs`.
-- **Git Commit**: `git commit -m "Phase 9: FastAPI backend complete and tested"`
+  - `GET /models/info` & `GET /metrics` (Diagnostics and benchmark metrics)
+- [x] **Step 9.5 - Local Verification**: Test endpoints and Swagger UI at `/docs`.
+- **Git Commit**: `git commit -m "Phase 9: FastAPI backend complete and tested"` ✅ Done
 
 ---
 
