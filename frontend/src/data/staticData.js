@@ -3174,3 +3174,99 @@ export const TEST_BENCHMARK = [
     "shock_flag": 0
   }
 ];
+
+export const CANDIDATE_MODELS = [
+  { rank: 1, name: "Extra Trees (Extremely Randomized Trees)", family: "Ensemble Bagging", rmse: 36845.7, mae: 30834.9, status: "Selected Winner 🏆", desc: "Randomized split thresholds eliminate small-sample overfitting, achieving lowest variance under 5-fold TimeSeriesSplit." },
+  { rank: 2, name: "XGBoost Regressor", family: "Gradient Boosting", rmse: 38870.6, mae: 31415.9, status: "Runner-Up", desc: "Fast gradient-boosted trees with L1/L2 regularization; strong on normal trends but slightly more volatile in shocks." },
+  { rank: 3, name: "ElasticNet Regressor", family: "Regularized Linear (L1+L2)", rmse: 42373.8, mae: 35324.6, status: "Baseline Linear", desc: "Linear combination of Lasso and Ridge; provides strong regularized linear baseline with stable variance." },
+  { rank: 4, name: "Random Forest Regressor", family: "Ensemble Bagging", rmse: 43422.3, mae: 35837.5, status: "Evaluated", desc: "Bootstrap aggregated decision trees; robust but slightly higher RMSE than Extra Trees due to deterministic greedy splits." },
+  { rank: 5, name: "CatBoost Regressor", family: "Categorical Boosting", rmse: 45191.4, mae: 38190.3, status: "Evaluated", desc: "Ordered boosting; effective on tabular data but computationally heavier with higher validation error." },
+  { rank: 6, name: "Gradient Boosting (GBR)", family: "Sequential Boosting", rmse: 47647.7, mae: 37794.4, status: "Evaluated", desc: "Classic Friedman gradient boosting; prone to over-correcting on large shock residual anomalies." },
+  { rank: 7, name: "HistGradientBoosting", family: "Histogram Boosting", rmse: 61395.9, mae: 53840.1, status: "Underperformed", desc: "Bin-based histogram boosting; optimized for huge datasets (>10k rows), underperformed on 120 monthly rows." },
+  { rank: 8, name: "LightGBM Regressor", family: "Leaf-wise Boosting", rmse: 62663.3, mae: 55134.0, status: "Underperformed", desc: "Leaf-wise tree growth overfitted rapidly on small training sequences." },
+  { rank: 9, name: "SVR (RBF Kernel)", family: "Support Vector Machine", rmse: 92944.5, mae: 86741.9, status: "Failed", desc: "Kernel epsilon-tube margin could not reconcile peaceful 240k peaks with 20k COVID collapse simultaneously." }
+];
+
+export const PIPELINE_DETAILS = [
+  {
+    id: "candidates",
+    badge: "Phase 5 Selection Tournament",
+    title: "Candidate Regression Tournament (9 Models)",
+    subtitle: "5-Fold TimeSeriesSplit Cross-Validation Tournament across 4 Algorithm Families",
+    color: "#eab308",
+    summary: "Systematic benchmarking of 9 candidate machine learning algorithms on 11 tabular features under strict forward-chaining cross-validation. Extra Trees achieved the lowest mean validation RMSE (36,845.7) and was selected as the hybrid meta-regressor.",
+    steps: [
+      { step: "1. 11-Feature Matrix", desc: "Macroeconomic exchange rate, 3 Google Trends travel demand signals, 4 Autoregressive lags, 2 Cyclical month angles, and shock indicator." },
+      { step: "2. Temporal Split", desc: "5-fold TimeSeriesSplit with expanding training windows to strictly prevent future lookahead bias." },
+      { step: "3. Hyperparameter Grids", desc: "Calibrated depth (4-6), tree count (300), and learning rates to prevent small-dataset memorization." },
+      { step: "4. Winner Selection", desc: "Extra Trees emerged #1 with lowest validation RMSE (36,845.7) and chosen as meta-regressor." }
+    ],
+    metrics: [
+      { label: "Winner Algorithm", val: "Extra Trees" },
+      { label: "Best Mean Val RMSE", val: "36,845.7" },
+      { label: "Evaluated Families", val: "4 Algorithm Types" },
+      { label: "Validation Strategy", val: "5-Fold TimeSeriesSplit" }
+    ]
+  },
+  {
+    id: "sarima",
+    badge: "Phase 3 Benchmark",
+    title: "Model 1: SARIMA Econometric Baseline",
+    subtitle: "Seasonal Autoregressive Integrated Moving Average (m=12)",
+    color: "#f97316",
+    summary: "The classical statistical benchmark representing industry-standard time-series forecasting. Modeled purely on univariate historical tourist arrivals to capture 12-month annual seasonality and autoregressive inertia.",
+    steps: [
+      { step: "1. Univariate Series", desc: "Pure historical tourist arrivals y(t) from 2015 to 2021 training split." },
+      { step: "2. Stationarity & ACF", desc: "Seasonal decomposition (period=12) and auto-ARIMA AIC stepwise optimization." },
+      { step: "3. 48-Month Forecast", desc: "Unconditional recursive projection over 2022-2025 out-of-sample test horizon." },
+      { step: "4. Finding & Limit", desc: "Achieved R² = 0.361; failed severely during 2022 crisis (87.0% MAPE) due to lack of exogenous signals." }
+    ],
+    metrics: [
+      { label: "Full Test RMSE", val: "50,850.4" },
+      { label: "Full Test MAPE", val: "38.68%" },
+      { label: "Full Test R²", val: "0.361" },
+      { label: "Crisis Shock MAPE", val: "86.96% (High Error)" }
+    ]
+  },
+  {
+    id: "lstm",
+    badge: "Phase 4 Benchmark",
+    title: "Model 2: Standalone Deep LSTM Neural Network",
+    subtitle: "24-Month Temporal Memory Sequence Model",
+    color: "#22c55e",
+    summary: "Pure deep learning benchmark evaluating whether recurrent neural memory alone can forecast arrivals under disruption. Uses a 24-month lookback window across 11 normalized exogenous features.",
+    steps: [
+      { step: "1. MinMax Normalization", desc: "Scalers fit exclusively on training split; maps 11 features and target arrivals to [0, 1]." },
+      { step: "2. 3D Sequence Windows", desc: "Constructs (samples, 24, 11) sliding tensor windows capturing 2 full annual cycles." },
+      { step: "3. Compact Topology", desc: "LSTM(32, tanh) → Dropout(0.2) → Dense(16, relu) → Dense(1) with EarlyStopping(patience=15)." },
+      { step: "4. Finding & Limit", desc: "Captured momentum during shocks (54.0% MAPE vs SARIMA 87.0%) but suffered high variance on small sample." }
+    ],
+    metrics: [
+      { label: "Full Test RMSE", val: "114,074.6" },
+      { label: "Full Test MAPE", val: "68.61%" },
+      { label: "Lookback Context", val: "24 Months" },
+      { label: "Crisis Shock MAPE", val: "54.00% (Better than SARIMA)" }
+    ]
+  },
+  {
+    id: "hybrid",
+    badge: "Phase 6 & Prod (Proposed)",
+    title: "Model 3: Proposed Hybrid Stacking Ensemble",
+    subtitle: "Deep LSTM Sequence Feature Extractor + Extra Trees Meta-Regressor",
+    color: "#a855f7",
+    summary: "The primary contribution of this dissertation. Integrates the 24-month deep temporal sequence trajectory (lstm_pred) with 11 tabular exogenous and lag signals, fed into the tuned Extra Trees meta-regressor.",
+    steps: [
+      { step: "1. Live Buffer Inference", desc: "Autonomous 24-step rolling history buffer passes target month into Keras LSTM." },
+      { step: "2. 12-Feature Stacking", desc: "Concatenates deep momentum prediction (lstm_pred) with 11 tabular exogenous/lag signals." },
+      { step: "3. Extra Trees Ensemble", desc: "300 extremely randomized trees map non-linear interactions and crisis regime shifts." },
+      { step: "4. Production Superiority", desc: "Outperformed both benchmarks (R² = 0.666, Shock MAPE = 40.1%, Diebold-Mariano p = 0.0017)." }
+    ],
+    metrics: [
+      { label: "Full Test RMSE", val: "36,776.3 (Lowest)" },
+      { label: "Full Test MAPE", val: "24.24% (Best)" },
+      { label: "Full Test R²", val: "0.666 (+25% higher)" },
+      { label: "Crisis Shock MAPE", val: "40.07% (Best Resilience)" }
+    ]
+  }
+];
+

@@ -4,7 +4,9 @@ import {
   HISTORICAL_DATA, 
   SHAP_IMPORTANCE, 
   MODEL_METRICS, 
-  TEST_BENCHMARK 
+  TEST_BENCHMARK,
+  CANDIDATE_MODELS,
+  PIPELINE_DETAILS
 } from './data/staticData';
 
 const MONTH_NAMES = [
@@ -100,6 +102,7 @@ export default function App() {
   // Form State
   const [params, setParams] = useState(PRESETS[3].data);
   const [activePreset, setActivePreset] = useState('current');
+  const [activePipelineTab, setActivePipelineTab] = useState('candidates');
   const [apiConnected, setApiConnected] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [isLoadingForecast, setIsLoadingForecast] = useState(false);
@@ -391,6 +394,7 @@ export default function App() {
 
           <div className="nav-links">
             <a href="#simulator">Simulator</a>
+            <a href="#pipelines">Model Pipelines</a>
             <a href="#timeline">Timeline Chart</a>
             <a href="#explainability">SHAP XAI</a>
             <a href="#benchmarks">Empirical Benchmarks</a>
@@ -710,6 +714,170 @@ export default function App() {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* 3.5. Model Architecture & Pipeline Explorer Section */}
+        <section id="pipelines" className="dashboard-section">
+          <div className="section-header">
+            <div>
+              <h3 className="section-title">
+                <span>🧬</span> Model Architectures & Pipeline Explorer
+              </h3>
+              <p className="section-desc">
+                Interactive breakdown of the 9-model candidate selection tournament, classical SARIMA baseline, deep LSTM neural network, and the proposed hybrid stacking ensemble.
+              </p>
+            </div>
+            <span className="badge badge-gold">Empirical Model Comparison</span>
+          </div>
+
+          {/* Interactive Pipeline Tabs */}
+          <div className="pipeline-tabs">
+            <button
+              className={`pipeline-tab-btn ${activePipelineTab === 'candidates' ? 'active' : ''}`}
+              onClick={() => setActivePipelineTab('candidates')}
+            >
+              <span>🏆</span> 1. Candidate Tournament (9 Models)
+            </button>
+            <button
+              className={`pipeline-tab-btn ${activePipelineTab === 'sarima' ? 'active' : ''}`}
+              onClick={() => setActivePipelineTab('sarima')}
+            >
+              <span>📈</span> 2. Model 1: SARIMA Baseline
+            </button>
+            <button
+              className={`pipeline-tab-btn ${activePipelineTab === 'lstm' ? 'active' : ''}`}
+              onClick={() => setActivePipelineTab('lstm')}
+            >
+              <span>🧠</span> 3. Model 2: Standalone Deep LSTM
+            </button>
+            <button
+              className={`pipeline-tab-btn ${activePipelineTab === 'hybrid' ? 'active' : ''}`}
+              onClick={() => setActivePipelineTab('hybrid')}
+            >
+              <span>⚡</span> 4. Model 3: Proposed Hybrid Ensemble
+            </button>
+          </div>
+
+          {/* Tab 1: Candidate Tournament View */}
+          {activePipelineTab === 'candidates' && (
+            <div className="pipeline-view-card glass-card">
+              <div className="pipeline-header">
+                <div className="pipeline-title-group">
+                  <span className="badge badge-gold">Phase 5 Candidate Tournament</span>
+                  <h4>5-Fold TimeSeriesSplit Cross-Validation Tournament (9 Models)</h4>
+                  <p>Comprehensive evaluation across 4 algorithm families on 11 multi-source features to choose the optimal meta-regressor.</p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span className="badge badge-emerald">Winner: Extra Trees Regressor</span>
+                </div>
+              </div>
+
+              <div className="pipeline-summary-box">
+                <strong>Empirical Finding:</strong> Extra Trees achieved the lowest mean validation RMSE (36,845.7) due to its randomized split thresholds, which drastically reduce variance and prevent overfitting on small monthly time-series samples.
+              </div>
+
+              {/* Leaderboard Table */}
+              <div className="candidate-table-wrap">
+                <table className="candidate-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '60px' }}>Rank</th>
+                      <th>Model Algorithm</th>
+                      <th>Family</th>
+                      <th style={{ width: '220px' }}>Mean Val RMSE</th>
+                      <th>Mean Val MAE</th>
+                      <th>Status</th>
+                      <th>Algorithmic Behaviour</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {CANDIDATE_MODELS.map((m) => (
+                      <tr key={m.rank} className={m.rank === 1 ? 'highlight-row' : ''}>
+                        <td>
+                          <span className={`rank-badge rank-${m.rank}`}>{m.rank}</span>
+                        </td>
+                        <td style={{ fontWeight: m.rank === 1 ? '700' : '500' }}>{m.name}</td>
+                        <td>
+                          <span className="family-tag">{m.family}</span>
+                        </td>
+                        <td>
+                          <div className="rmse-bar-wrap">
+                            <span className="rmse-val">{m.rmse.toLocaleString()}</span>
+                            <div className="rmse-progress">
+                              <div
+                                className="rmse-fill"
+                                style={{
+                                  width: `${Math.min(100, Math.round((36845.7 / m.rmse) * 100))}%`,
+                                  background: m.rank === 1 ? '#eab308' : m.rank <= 3 ? '#34d399' : '#f43f5e'
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ fontFamily: 'var(--font-mono)' }}>{m.mae.toLocaleString()}</td>
+                        <td>
+                          <span className={`badge ${m.rank === 1 ? 'badge-gold' : m.rank <= 3 ? 'badge-emerald' : 'badge-shock'}`}>
+                            {m.status}
+                          </span>
+                        </td>
+                        <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{m.desc}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Tabs 2, 3, 4: Individual Benchmark Pipeline Views */}
+          {activePipelineTab !== 'candidates' && (() => {
+            const pipe = PIPELINE_DETAILS.find((p) => p.id === activePipelineTab);
+            if (!pipe) return null;
+            return (
+              <div className="pipeline-view-card glass-card">
+                <div className="pipeline-header">
+                  <div className="pipeline-title-group">
+                    <span className="badge" style={{ background: `${pipe.color}25`, color: pipe.color, border: `1px solid ${pipe.color}60` }}>
+                      {pipe.badge}
+                    </span>
+                    <h4>{pipe.title}</h4>
+                    <p>{pipe.subtitle}</p>
+                  </div>
+                </div>
+
+                <div className="pipeline-summary-box" style={{ borderLeftColor: pipe.color }}>
+                  {pipe.summary}
+                </div>
+
+                {/* Key Metrics Row */}
+                <div className="pipeline-metrics-row">
+                  {pipe.metrics.map((met, i) => (
+                    <div key={i} className="pipeline-metric-card">
+                      <div className="pipeline-metric-label">{met.label}</div>
+                      <div className="pipeline-metric-val" style={{ color: pipe.color }}>
+                        {met.val}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 4-Step Pipeline Flow */}
+                <h5 style={{ fontFamily: 'var(--font-brand)', fontSize: '1rem', color: 'var(--text-gold)', marginBottom: '14px' }}>
+                  ⚙️ Execution Pipeline Stages:
+                </h5>
+                <div className="pipeline-steps-grid">
+                  {pipe.steps.map((st, i) => (
+                    <div key={i} className="pipeline-step-box">
+                      <div className="pipeline-step-number" style={{ color: pipe.color }}>
+                        {st.step}
+                      </div>
+                      <div className="pipeline-step-desc">{st.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </section>
 
         {/* 4. Historical Arrivals & Shock Timeline Chart */}
