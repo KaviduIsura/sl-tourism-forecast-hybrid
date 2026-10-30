@@ -94,12 +94,16 @@ const PRESETS = [
   }
 ];
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 export default function App() {
   // Form State
   const [params, setParams] = useState(PRESETS[3].data);
   const [activePreset, setActivePreset] = useState('current');
   const [apiConnected, setApiConnected] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [isLoadingForecast, setIsLoadingForecast] = useState(false);
+  const [liveForecast, setLiveForecast] = useState(null);
   const [simulationResult, setSimulationResult] = useState(null);
 
   // Active chart series toggles
@@ -117,9 +121,11 @@ export default function App() {
   useEffect(() => {
     async function checkHealth() {
       try {
-        const res = await fetch('http://localhost:8000/', { method: 'GET' });
+        const res = await fetch(`${API_BASE}/`, { method: 'GET' });
         if (res.ok) {
           setApiConnected(true);
+        } else {
+          setApiConnected(false);
         }
       } catch {
         setApiConnected(false);
@@ -137,102 +143,159 @@ export default function App() {
     setSimulationResult(null);
   };
 
-  // Client-side inference calculation (mathematical surrogate calibrated to Extra Trees model)
-  const calculatedForecast = useMemo(() => {
+  // Client-side fallback surrogate (used when API is starting or offline)
+  const surrogateForecast = useMemo(() => {
     const angle = 2.0 * Math.PI * params.month / 12.0;
     const sin_m = Math.sin(angle);
     const cos_m = Math.cos(angle);
 
-    // Baseline seasonal estimate
     const lag12_w = params.arrivals_lag_12 * 0.38;
     const lag1_w = params.arrivals_lag_1 * 0.28;
     const roll3_w = params.arrivals_rolling_mean_3 * 0.18;
     const lag3_w = params.arrivals_lag_3 * 0.08;
 
-    // Search intent multiplier
     const search_index = (params.gtrends_hotels * 0.5 + params.gtrends_visa * 0.35 + params.gtrends_flights * 0.15) / 50.0;
     const search_effect = (search_index - 1.0) * 22000;
-
-    // Currency effect
     const fx_diff = (params.usd_lkr_rate_monthly - 300.0) / 100.0;
     const fx_effect = fx_diff * 4500;
-
-    // Calendar seasonality
     const seasonal_effect = sin_m * 12000 + cos_m * 8500;
 
     let base_arrival = lag12_w + lag1_w + roll3_w + lag3_w + search_effect + fx_effect + seasonal_effect;
-
-    // Shock impact
     if (params.shock_flag === 1) {
       base_arrival = base_arrival * 0.52 - 15000;
     }
 
     const predicted = Math.max(12000, Math.round(base_arrival));
-    const sigma = 36776; // Empirically verified test RMSE
-
-    const ci80_lower = Math.max(0, Math.round(predicted - 1.282 * sigma));
-    const ci80_upper = Math.round(predicted + 1.282 * sigma);
-    const ci95_lower = Math.max(0, Math.round(predicted - 1.960 * sigma));
-    const ci95_upper = Math.round(predicted + 1.960 * sigma);
-
-    // Local SHAP Waterfall
-    const local_shap = [
-      {
-        feature: 'Google Hotels Search',
-        impact: Math.round((params.gtrends_hotels - 50) * 457),
-        dir: params.gtrends_hotels >= 50 ? 'pos' : 'neg'
-      },
-      {
-        feature: 'Visa / ETA Intent',
-        impact: Math.round((params.gtrends_visa - 45) * 375),
-        dir: params.gtrends_visa >= 45 ? 'pos' : 'neg'
-      },
-      {
-        feature: '12-Month Seasonal Lag',
-        impact: Math.round((params.arrivals_lag_12 - 150000) * 0.105),
-        dir: params.arrivals_lag_12 >= 150000 ? 'pos' : 'neg'
-      },
-      {
-        feature: 'Exogenous Shock Status',
-        impact: params.shock_flag === 1 ? -42500 : 12500,
-        dir: params.shock_flag === 1 ? 'neg' : 'pos'
-      },
-      {
-        feature: 'USD/LKR Exchange Rate',
-        impact: Math.round(fx_effect),
-        dir: fx_effect >= 0 ? 'pos' : 'neg'
-      }
-    ];
+    const sigma = params.shock_flag === 1 ? 46800 : 24150;
 
     return {
       predicted,
       regime: params.shock_flag === 1 ? 'Exogenous Shock Disruption' : 'Stable / Normal Recovery',
-      ci80: [ci80_lower, ci80_upper],
-      ci95: [ci95_lower, ci95_upper],
-      shap: local_shap
+      ci80: [Math.max(0, Math.round(predicted - 1.282 * sigma)), Math.round(predicted + 1.282 * sigma)],
+      ci95: [Math.max(0, Math.round(predicted - 1.960 * sigma)), Math.round(predicted + 1.960 * sigma)],
+      shap: [
+        { feature: 'Google Hotels Search', impact: Math.round((params.gtrends_hotels - 50) * 457), dir: params.gtrends_hotels >= 50 ? 'pos' : 'neg' },
+        { feature: 'Visa / ETA Intent', impact: Math.round((params.gtrends_visa - 45) * 375), dir: params.gtrends_visa >= 45 ? 'pos' : 'neg' },
+        { feature: '12-Month Seasonal Lag', impact: Math.round((params.arrivals_lag_12 - 150000) * 0.105), dir: params.arrivals_lag_12 >= 150000 ? 'pos' : 'neg' },
+        { feature: 'Exogenous Shock Status', impact: params.shock_flag === 1 ? -42500 : 12500, dir: params.shock_flag === 1 ? 'neg' : 'pos' },
+        { feature: 'USD/LKR Exchange Rate', impact: Math.round(fx_effect), dir: fx_effect >= 0 ? 'pos' : 'neg' }
+      ]
     };
   }, [params]);
 
-  // Run What-If simulation
-  const handleRunSimulation = () => {
-    setIsSimulating(true);
-    setTimeout(() => {
-      const baseline = calculatedForecast.predicted;
-      // Simulate counterfactual shock
-      const shockOver = params.shock_flag === 0 ? 1 : 0;
-      const simArrivals = shockOver === 1 ? Math.round(baseline * 0.58) : Math.round(baseline * 1.45);
-      const diff = simArrivals - baseline;
-      const pct = ((diff / baseline) * 100).toFixed(1);
+  // Query live production FastAPI endpoint with 200ms debounce
+  useEffect(() => {
+    let isCancelled = false;
+    const timer = setTimeout(async () => {
+      setIsLoadingForecast(true);
+      try {
+        const payload = {
+          month: Number(params.month),
+          usd_lkr_rate_monthly: Number(params.usd_lkr_rate_monthly),
+          gtrends_flights: Number(params.gtrends_flights),
+          gtrends_hotels: Number(params.gtrends_hotels),
+          gtrends_visa: Number(params.gtrends_visa),
+          shock_flag: Number(params.shock_flag),
+          arrivals_lag_1: Number(params.arrivals_lag_1),
+          arrivals_lag_3: Number(params.arrivals_lag_3 || params.arrivals_lag_1 * 0.9),
+          arrivals_lag_12: Number(params.arrivals_lag_12),
+          arrivals_rolling_mean_3: Number(params.arrivals_rolling_mean_3 || params.arrivals_lag_1 * 0.95)
+        };
+        const res = await fetch(`${API_BASE}/predict`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (!isCancelled) {
+            setLiveForecast({
+              predicted: data.predicted_arrivals,
+              regime: data.regime,
+              ci80: [data.confidence_interval_80.lower, data.confidence_interval_80.upper],
+              ci95: [data.confidence_interval_95.lower, data.confidence_interval_95.upper],
+              lstm_component: data.lstm_component,
+              shap: (data.feature_attributions || []).slice(0, 5).map(a => ({
+                feature: a.feature.replace(/_/g, ' '),
+                impact: Math.round(a.impact_arrivals),
+                dir: a.direction === 'positive' ? 'pos' : 'neg'
+              }))
+            });
+            setApiConnected(true);
+          }
+        }
+      } catch {
+        // Keeps graceful surrogate
+      } finally {
+        if (!isCancelled) setIsLoadingForecast(false);
+      }
+    }, 200);
 
-      setSimulationResult({
-        baseline,
-        simulated: simArrivals,
-        netChange: diff,
-        pctChange: pct,
-        shockState: shockOver
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [params]);
+
+  // Primary active forecast (live model inference or fallback)
+  const calculatedForecast = liveForecast || surrogateForecast;
+
+  // Run What-If simulation via live FastAPI endpoint
+  const handleRunSimulation = async () => {
+    setIsSimulating(true);
+    const shockOver = params.shock_flag === 0 ? 1 : 0;
+    try {
+      const payload = {
+        base_request: {
+          month: Number(params.month),
+          usd_lkr_rate_monthly: Number(params.usd_lkr_rate_monthly),
+          gtrends_flights: Number(params.gtrends_flights),
+          gtrends_hotels: Number(params.gtrends_hotels),
+          gtrends_visa: Number(params.gtrends_visa),
+          shock_flag: Number(params.shock_flag),
+          arrivals_lag_1: Number(params.arrivals_lag_1),
+          arrivals_lag_3: Number(params.arrivals_lag_3 || params.arrivals_lag_1 * 0.9),
+          arrivals_lag_12: Number(params.arrivals_lag_12),
+          arrivals_rolling_mean_3: Number(params.arrivals_rolling_mean_3 || params.arrivals_lag_1 * 0.95)
+        },
+        shock_flag_override: shockOver
+      };
+      const res = await fetch(`${API_BASE}/simulate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
-      setIsSimulating(false);
-    }, 400);
+      if (res.ok) {
+        const data = await res.json();
+        setSimulationResult({
+          baseline: data.baseline_prediction,
+          simulated: data.simulated_prediction,
+          netChange: data.net_change,
+          pctChange: data.percentage_change,
+          shockState: shockOver,
+          description: data.scenario_description
+        });
+        setIsSimulating(false);
+        return;
+      }
+    } catch {
+      // Fallback
+    }
+
+    // Local fallback if API temporarily unreachable
+    const baseline = calculatedForecast.predicted;
+    const simArrivals = shockOver === 1 ? Math.round(baseline * 0.58) : Math.round(baseline * 1.45);
+    const diff = simArrivals - baseline;
+    const pct = ((diff / baseline) * 100).toFixed(1);
+
+    setSimulationResult({
+      baseline,
+      simulated: simArrivals,
+      netChange: diff,
+      pctChange: pct,
+      shockState: shockOver
+    });
+    setIsSimulating(false);
   };
 
   // SVG Chart Geometry Calculations
